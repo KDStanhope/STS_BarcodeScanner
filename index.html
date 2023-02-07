@@ -137,12 +137,19 @@
             });
 
             Quagga.registerResultCollector(resultCollector)
+
+            
+
             Quagga.onDetected(function (result) {
+                detectionHash[result.codeResult.code] = (detectionHash[result.codeResult.code]+1) || 1;
+                if (detectionHash[result.codeResult.code] >= 20) {
+                    console.log(result.codeResult.code);
+                }
                 console.log("Barcode detected and processed : [" + result.codeResult.code + "]", result);
 
             });
         }
-            
+
     </script>
     <div class="container-fluid dark">
         <div class="row justify-content-center">
@@ -189,11 +196,14 @@
         // Start/stop scanner
         var camModal = document.getElementById("modal-container")
         camModal.addEventListener("shown.bs.modal", function (event) {
-                startScanner();
+            startScanner();
         }, false);
         camModal.addEventListener("hide.bs.modal", function (event) {
-                Quagga.stop();
+            Quagga.stop();
         }, false);
+
+        var detectionHash = {};
+
     </script>
 </body>
 
