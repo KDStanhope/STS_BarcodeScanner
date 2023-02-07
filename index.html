@@ -5,11 +5,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Bootstrap demo</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous">
-        </script>
+    </script>
     <script src="quagga.min.js"></script>
     <style>
         /* In order to place the tracking correctly */
@@ -63,6 +64,7 @@
                         }
                     }
                 },
+                locate: true
 
             }, function (err) {
                 if (err) {
@@ -93,7 +95,7 @@
                                 y: 1
                             }, drawingCtx, {
                                 color: "green",
-                                lineWidth: 2
+                                lineWidth: 3
                             });
                         });
                     }
@@ -114,7 +116,7 @@
                             y: 'y'
                         }, drawingCtx, {
                             color: 'red',
-                            lineWidth: 3
+                            lineWidth: 5
                         });
                     }
                 }
@@ -138,34 +140,59 @@
 
             Quagga.registerResultCollector(resultCollector)
 
-            
+
 
             Quagga.onDetected(function (result) {
-                detectionHash[result.codeResult.code] = (detectionHash[result.codeResult.code]+1) || 1;
+                detectionHash[result.codeResult.code] = (detectionHash[result.codeResult.code] + 1) || 1;
                 if (detectionHash[result.codeResult.code] >= 20) {
                     console.log(result.codeResult.code);
+                    
+                    for (let code of tempTableArr) { //loop through the array
+                        if (code = parseInt(result.codeResult.code)) { //if the code is found
+                            console.log("FOUND");
+                            console.log(code);
+                            let btn = document.getElementById("btn" + code); 
+                            btn.className = "btn btn-success";
+                        $('#modal-container').modal('hide');
+                            break; //exit the loop
+                        }
+                    }
+                    
                 }
                 console.log("Barcode detected and processed : [" + result.codeResult.code + "]", result);
 
             });
         }
-
     </script>
     <div class="container-fluid dark">
         <div class="row justify-content-center">
-            <div class="col-md-auto">
+            <div class="col-auto">
                 <h1>Stock Scanner</h1>
             </div>
         </div>
         <div class="row justify-content-center">
-            <div class="col-md-auto">
+            <div class="col-auto">
                 <div id="xxscanner-container" class="viewport"></div>
             </div>
         </div>
         <div class="row justify-content-center">
-            <div class="col-md-auto">
+            <div class="col-auto">
                 <button id="startScanner" type="button" class="btn btn-success" data-bs-toggle="modal"
                     data-bs-target="#modal-container">Start Scanner</button>
+            </div>
+        </div>
+        <hr>
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                <button id="syncRecordsModal" type="button" class="btn btn-primary">Sync Records</button>
+            </div>
+        </div>
+        <hr>
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                <table id="syncRecordsTable" class="table">
+
+                </table>
             </div>
         </div>
     </div>
@@ -180,7 +207,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="row justify-content-center">
-                        <div class="col-md-auto">
+                        <div class="col-auto">
                             <div id="scanner-container" class="viewport"></div>
                         </div>
                     </div>
@@ -202,8 +229,46 @@
             Quagga.stop();
         }, false);
 
+        // Sync records
+        var syncRecordsModal = document.getElementById("syncRecordsModal")
+        var syncRecordsTable = document.getElementById("syncRecordsTable")
+
+        function Sync() {
+            if (syncRecordsTable.rows.length < 1) {
+
+                for (let code of tempTableArr) { //Insert a new row element into the table element
+                    syncRecordsTable.insertRow(); //Iterate over every index(cell) in each array(row)
+                    //insert a cell into the table element
+
+                    let newStatus = syncRecordsTable.rows[syncRecordsTable.rows.length - 1]
+                        .insertCell(); //add text to the created cell element
+                    let btn = document.createElement("button");
+                    btn.id = "btn" + code;
+                    btn.className = "btn btn-light";
+                    btn.innerHTML = " ";
+                    newStatus.appendChild(btn);
+
+                    let newCell = syncRecordsTable.rows[syncRecordsTable.rows.length - 1]
+                        .insertCell(); //add text to the created cell element
+                    newCell.textContent = code;
+                    newCell.className = "h4 text-center align-middle";
+
+
+                }
+
+            }
+        }
+
+        syncRecordsModal.addEventListener("click", function (event) {
+            Sync();
+        }, false);
+
         var detectionHash = {};
 
+
+
+        // TEMP TABLE JUST FOR SHOW
+        var tempTableArr = [1502308, 1502283, 1502310, 15023071, 1502309]
     </script>
 </body>
 
